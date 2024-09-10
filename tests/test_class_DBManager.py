@@ -1,5 +1,6 @@
 from unittest.mock import patch
-from src.db_manager import DBManager
+
+from src.class_DBManager import DBManager
 
 # Пример данных для тестирования
 mock_data = {
@@ -27,8 +28,8 @@ mock_data = {
 
 @patch("psycopg2.connect")
 def test_db_manager(mock_connect):
-    # Создаем экземпляр класса DBManager
-    db_manager = DBManager(params={})
+    """ Создаем экземпляр класса DBManager"""
+    db_manager = DBManager(database_name="test_db", params={})
 
     # Тестируем метод get_companies_and_vacancies_count
     mock_cursor = mock_connect.return_value.cursor.return_value

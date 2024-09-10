@@ -1,9 +1,10 @@
-import pytest
-from typing import Any
-import psycopg2
-from src.db_creating import create_data_base, save_data_to_db
 import unittest
-from unittest.mock import patch, MagicMock
+from typing import Any
+from unittest.mock import patch
+
+import psycopg2
+import pytest
+from src.dbase_creating import create_data_base, save_data_to_db
 
 
 @pytest.fixture

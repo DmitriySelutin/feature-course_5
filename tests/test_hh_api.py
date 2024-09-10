@@ -1,7 +1,6 @@
-import pytest
-import requests
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+import pytest
 from src.hh_api import get_companies, get_vacancies, get_vacancy_list
 
 
@@ -12,12 +11,12 @@ def company_data():
         {"company_id": 2180, "company_name": "Ozon", "company_url": "https://api.hh.ru/employers/2180"},
         {"company_id": 3776, "company_name": "МТС", "company_url": "https://api.hh.ru/employers/3776"},
         {"company_id": 3529, "company_name": "СБЕР", "company_url": "https://hh.ru/employer/3529"},
-        {"company_id": 4181, "company_name": "Банк ВТБ", "company_url": "https://hh.ru/employer/4181"},
         {"company_id": 39305, "company_name": "Газпромнефть", "company_url": "https://hh.ru/employer/39305"},
-        {"company_id": 80, "company_name": "Альфа-банк", "company_url": "https://hh.ru/employer/80"},
+        {"company_id": 49357, "company_name": "Магнит", "company_url": "https://hh.ru/employer/49357"},
         {"company_id": 15478, "company_name": "VK", "company_url": "https://hh.ru/employer/15478"},
-        {"company_id": 2748, "company_name": "ПАО Ростелеком", "company_url": "https://hh.ru/employer/2748"},
+        {"company_id": 87021, "company_name": "WILDBERRIES", "company_url": "https://hh.ru/employer/87021"},
         {"company_id": 23427, "company_name": "РЖД", "company_url": "https://hh.ru/employer/23427"},
+        {"company_id": 4181, "company_name": "Банк ВТБ", "company_url": "https://hh.ru/employer/4181"},
     ]
 
 
@@ -27,12 +26,12 @@ def test_get_companies() -> None:
         {"company_id": 2180, "company_name": "Ozon", "company_url": "https://hh.ru/employer/2180"},
         {"company_id": 3776, "company_name": "МТС", "company_url": "https://hh.ru/employer/3776"},
         {"company_id": 3529, "company_name": "СБЕР", "company_url": "https://hh.ru/employer/3529"},
-        {"company_id": 4181, "company_name": "Банк ВТБ", "company_url": "https://hh.ru/employer/4181"},
         {"company_id": 39305, "company_name": "Газпромнефть", "company_url": "https://hh.ru/employer/39305"},
-        {"company_id": 80, "company_name": "Альфа-банк", "company_url": "https://hh.ru/employer/80"},
+        {"company_id": 49357, "company_name": "Магнит", "company_url": "https://hh.ru/employer/49357"},
         {"company_id": 15478, "company_name": "VK", "company_url": "https://hh.ru/employer/15478"},
-        {"company_id": 2748, "company_name": "ПАО Ростелеком", "company_url": "https://hh.ru/employer/2748"},
+        {"company_id": 87021, "company_name": "WILDBERRIES", "company_url": "https://hh.ru/employer/87021"},
         {"company_id": 23427, "company_name": "РЖД", "company_url": "https://hh.ru/employer/23427"},
+        {"company_id": 4181, "company_name": "Банк ВТБ", "company_url": "https://hh.ru/employer/4181"},
     ]
     companies = get_companies()
     assert companies == company_data

@@ -1,104 +1,63 @@
+from typing import Any
+
 import psycopg2
 
 
 class DBManager:
-    def __init__(self, host, database, user, password):
-        self.host = host
-        self.database = database
-        self.user = user
-        self.password = password
-        self.conn = None
+    """Класс, который подключается к БД PostgreSQL."""
 
-    def connect(self):
-        try:
-            self.conn = psycopg2.connect(
-                host=self.host,
-                database=self.database,
-                user=self.user,
-                password=self.password
-            )
-        except (Exception, psycopg2.Error) as error:
-            print("Error connecting to the database:", error)
+    def __init__(self, database_name: str, params: Any) -> None:
+        """Инициализация класса"""
+        self.conn = psycopg2.connect(dbname=database_name, **params)
+        self.cur = self.conn.cursor()
 
-    def get_companies_and_vacancies_count(self):
-        try:
-            self.connect()
-            with self.conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT c.name, COUNT(v.id) AS vacancies_count
-                    FROM companies c
-                    LEFT JOIN vacancies v ON c.id = v.company_id
-                    GROUP BY c.name
-                """)
-                return cursor.fetchall()
-        except (Exception, psycopg2.Error) as error:
-            print("Error executing the query:", error)
-        finally:
-            if self.conn:
-                self.conn.close()
+    def get_companies_and_vacancies_count(self) -> dict[Any, Any]:
+        """Получает список всех компаний и количество вакансий у каждой компании."""
+        self.cur.execute(
+            """
+        SELECT company_name,
+        COUNT(*) FROM vacancies
+        GROUP BY company_name
+        """
+        )
+        rows = self.cur.fetchall()
+        return {row[0]: row[1] for row in rows}
 
-    def get_all_vacancies(self):
-        try:
-            self.connect()
-            with self.conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT c.name AS company_name, v.title, v.salary, v.url
-                    FROM vacancies v
-                    JOIN companies c ON v.company_id = c.id
-                """)
-                return cursor.fetchall()
-        except (Exception, psycopg2.Error) as error:
-            print("Error executing the query:", error)
-        finally:
-            if self.conn:
-                self.conn.close()
+    def get_all_vacancies(self) -> Any:
+        """Получает список всех вакансий с указанием названия компании,
+        названия вакансии и зарплаты и ссылки на вакансию."""
+        self.cur.execute(
+            """
+        SELECT company_name, job_title, salary_from, currency, link_to_vacancy FROM vacancies
+        """
+        )
+        rows = self.cur.fetchall()
+        return rows
 
-    def get_avg_salary(self):
-        try:
-            self.connect()
-            with self.conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT AVG(salary) AS avg_salary
-                    FROM vacancies
-                """)
-                return cursor.fetchone()[0]
-        except (Exception, psycopg2.Error) as error:
-            print("Error executing the query:", error)
-        finally:
-            if self.conn:
-                self.conn.close()
+    def get_avg_salary(self) -> Any:
+        """Получает среднюю зарплату по вакансиям."""
+        self.cur.execute(
+            """
+        SELECT AVG(salary_from) FROM vacancies
+        """
+        )
+        rows = self.cur.fetchall()
+        return rows if rows else None
 
-    def get_vacancies_with_higher_salary(self):
-        try:
-            self.connect()
-            avg_salary = self.get_avg_salary()
-            with self.conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT c.name AS company_name, v.title, v.salary, v.url
-                    FROM vacancies v
-                    JOIN companies c ON v.company_id = c.id
-                    WHERE v.salary > %s
-                """, (avg_salary,))
-                return cursor.fetchall()
-        except (Exception, psycopg2.Error) as error:
-            print("Error executing the query:", error)
-        finally:
-            if self.conn:
-                self.conn.close()
+    def get_vacancies_with_higher_salary(self) -> Any:
+        """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
+        self.cur.execute(
+            """
+        SELECT job_title, salary_from FROM vacancies WHERE salary_from > (SELECT AVG(salary_from)
+        FROM vacancies)
+        """
+        )
+        rows = self.cur.fetchall()
+        return rows
 
-    def get_vacancies_with_keyword(self, keyword):
-        try:
-            self.connect()
-            with self.conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT c.name AS company_name, v.title, v.salary, v.url
-                    FROM vacancies v
-                    JOIN companies c ON v.company_id = c.id
-                    WHERE v.title ILIKE %s
-                """, (f'%{keyword}%',))
-                return cursor.fetchall()
-        except (Exception, psycopg2.Error) as error:
-            print("Error executing the query:", error)
-        finally:
-            if self.conn:
-                self.conn.close()
+    def get_vacancies_with_keyword(self, keyword: str) -> Any:
+        """Получает список всех вакансий, в названии которых содержатся переданные в метод слова."""
+        query = """SELECT * FROM vacancies
+        WHERE LOWER(job_title) LIKE %s"""
+        self.cur.execute(query, ("%" + keyword.lower() + "%",))
+        return self.cur.fetchall()
